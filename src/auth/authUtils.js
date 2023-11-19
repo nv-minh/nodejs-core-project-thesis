@@ -12,7 +12,7 @@ const JWT = require("jsonwebtoken");
  * Creates a token pair using the provided payload, public key, and private key.
  *
  * @param {Object} payload - The payload for generating the token pair.
- * @param {string} publicKey - The public key used for token generation.
+ * @param {string | Object} publicKey - The public key used for token generation.
  * @param {string} privateKey - The private key used for token generation.
  * @return {Promise} A promise that resolves with the generated token pair.
  */

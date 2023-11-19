@@ -69,8 +69,7 @@ if (checkEnable(configs.db.enable)) {
 
 
 // init routes
-app.use("", require("./routes"));
-
+app.use("", require("./routes/index"));
 
 // handling errors
 const { returnError, is404Handler } = require("./middleware/errorHandler");
