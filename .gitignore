@@ -4,5 +4,6 @@
 /.docker/data/db/*
 /.docker/data/redis/*
 .idea
+.env
 .docker/data/*
 /local/

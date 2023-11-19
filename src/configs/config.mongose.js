@@ -3,10 +3,9 @@
 const mongoose = require("mongoose");
 const { db: { host, name, port, username, password } } = require("./config");
 
-const connectString = `mongodb://${username}:${password}@${host}:${port}/${name}?authSource=admin`;
+const connectString = `mongodb://0.0.0.0:${port}/${name}`;
 const { countConnect } = require("../helpers/check.connect");
 const MAX_POLL_SIZE = 50;
-console.log(connectString);
 const TIME_OUT_CONNECT = 3000;
 
 console.log(connectString);
