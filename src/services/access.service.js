@@ -7,7 +7,7 @@ const { createTokenPair } = require("../auth/authUtils");
 const RoleAccount = {
   USER: "USER", WRITER: "001", READ: "002", DELETE: "003", ADMIN: "000"
 };
-const apiKeyModel = require('../models/apiKey.model')
+const apiKeyModel = require("../models/apiKey.model");
 const { getInfoData } = require("../utils/index");
 const accountModel = require("../models/account.model");
 
@@ -134,6 +134,64 @@ class AccessService {
           fields: ["key"],
           object: newKey
         })
+    };
+  };
+
+  /**
+   * 1 - Check email in database
+   * 2 - Match password
+   * 3 - Create publicKey and  privateKey
+   * 4 - Generate tokens
+   * 5 - get guide return login
+   * @param email
+   * @param password
+   * @returns {Promise<void>}
+   */
+  signIn = async ({ email, password }) => {
+    // 1.
+    const foundAccount = await findByEmail({ email });
+    if (!foundAccount) throw new Api403Error("Forbidden");
+
+    // 2.
+    const match = bcrypt.compare(password, foundAccount.password);
+    if (!match) throw new BusinessLogicError("Forbidden password");
+
+    // 3.
+    const {
+      publicKey,
+      privateKey
+    } = crypto.generateKeyPairSync("rsa", {
+      modulusLength: 4096,
+      publicKeyEncoding: {
+        type: "pkcs1",
+        format: "pem"
+      },
+      privateKeyEncoding: {
+        type: "pkcs1",
+        format: "pem"
+      }
+    });
+
+    // 4.
+    const { _id: userId } = foundAccount;
+    const tokens = await createTokenPair({
+      userId: userId.toString(),
+      email
+    }, publicKey, privateKey);
+
+    await KeyTokenService.createKeyToken({
+      userId: userId.toString(),
+      privateKey,
+      publicKey,
+      refreshToken: tokens.refreshToken
+    });
+
+    return {
+      account: getInfoData({
+        fields: ["_id", "name", "email"],
+        object: foundAccount
+      }),
+      tokens
     };
   };
 }
